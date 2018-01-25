@@ -8,6 +8,6 @@
   "gulp-run": "latest",
   "gulp-dest": "latest",
   "jquery": "latest",
-  "jsdom": "latest"
+  "feedparser": "latest"
   }
 }
