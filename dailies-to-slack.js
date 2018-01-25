@@ -69,18 +69,24 @@ getFeed(feedURL, function (err, feedItems) {
     console.log( feedItems.length + " items were found in the feed.\n");
     // loop through each item in the feed
     for (var i = 0; i < feedItems.length; i++) {
+      // feedparser docs: https://www.npmjs.com/package/feedparser
+      var title   = feedItems[i].title,         // item title
+          desc    = feedItems[i].description,   // item description
+          pubDate = feedItems[i].pubdate,       // item published date
+          link    = feedItems[i].link,          // site link
+          image   = feedItems[i].image;         // item image object with ["title"] and ["url"] properties
       // Is a category set in config.js?
       if( category !== '' ) {
         // if so, get categories
-        var feedCat = feedItems[i].categories;
+        var feedCats = feedItems[i].categories;
         // and only print those that match
-        if ( feedCat.indexOf( category ) > -1 ) {
-          console.log( feedItems[i].title + " " + feedItems[i].link + ".\n");
+        if ( feedCats.indexOf( category ) > -1 ) {
+          console.log( title + " | " + link + ".\n");
         }
       } else {
         // If no category set in config.js
         // Then print all items
-        console.log( feedItems[i].title + " " + feedItems[i].link + ".\n");
+        console.log( title + " | " + link + ".\n");
       }
     }
   } // end if no errrors
