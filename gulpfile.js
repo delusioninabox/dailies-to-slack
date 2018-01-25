@@ -13,7 +13,7 @@ var gulp    = require('gulp'),
     concat  = require('gulp-concat'),
     connect = require('gulp-connect'),
     dest    = require('gulp-dest'),
-    run     = require('gulp-run-command').default;
+    run     = require('gulp-run');
 
 // create the task
 gulp.task('dailies', function() {
@@ -34,10 +34,10 @@ gulp.task('dailies', function() {
   .pipe( connect.reload() );
   gutil.log('Files successfully merged and minified.');
   // run the new file
-  gutil.log('Running output...');
-  run('node dist/script.js');
+  gutil.log('Loading file...');
+  run('node dist/script.js').exec();
   // output completion message
-  gutil.log( gutil.colors.green.bold('Completed.') );
+  gutil.log( gutil.colors.green.bold('Ready. Running file now.') );
 });
 
 // set it as the default
