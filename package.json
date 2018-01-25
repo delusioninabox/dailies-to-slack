@@ -5,7 +5,7 @@
   "gulp-uglify": "latest",
   "gulp-concat": "latest",
   "gulp-connect": "latest",
-  "gulp-exec": "latest",
+  "gulp-run-command": "latest",
   "gulp-dest": "latest"
   }
 }
