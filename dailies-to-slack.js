@@ -8,7 +8,7 @@ This file contains the function our gulpfile will actually read and run.
 console.log("Reading variables...");
 
 // Check necessary config variables have set values
-if (webhookURL.length === 0 || feedURL.length === 0) {
+if (webhookURL.length === 0 || feedURL.length === 0 || yourSlackToken.length === 0 || channel.length === 0 ) {
   console.log("Please check your config.js file for missing data.");
 } else {
   console.log("Config approved.");
@@ -16,7 +16,8 @@ if (webhookURL.length === 0 || feedURL.length === 0) {
 
 // load npm feedparser
 var request    = require("request"),
-    FeedParser = require("feedparser");
+    FeedParser = require("feedparser"),
+    slackAPI   = 'https://slack.com/api/';
 
 // function to get feed and callback data
 function getFeed(urlfeed, callback) {
@@ -66,31 +67,34 @@ getFeed(feedURL, function (err, feedItems) {
   // only run if no errors
   if (!err) {
     // let's find the channel ID
+    //https://slack.com/api/channels.list
     request.get(
-      'https://slack.com/api/channels.list',
-      { json: {
-        token: yourSlackToken,
-      }},
+      slackAPI + 'channels.list?exclude_archived=true&exclude_members=true&token=' + yourSlackToken,
       function (error, response, body) {
           if (!error) {
-            console.log("response: " + body);
+            var parseResponse = JSON.parse(body);
+            var channelList   = parseResponse.channels;
+              // find match in 'name' and return 'id'
+              for (var x = 0; x < channelList.length; x++) {
+                console.log( channelList[x]['name']);
+              }
           }
       }
     );
-    // let's get the latest posts from slack to prevent duplication
+    // let's get the latest posts from the slack channel to prevent duplication
     // channels.history
-    request.get(
-      'https://slack.com/api/channels.history',
-      { json: {
-        token: yourSlackToken,
-        channel: '',
-      }},
-      function (error, response, body) {
-          if (!error) {
-            console.log("response: " + body);
-          }
-      }
-    );
+//    request.get(
+//      'https://slack.com/api/channels.history',
+//      { json: {
+//        token: yourSlackToken,
+//        channel: '',
+//      }},
+//      function (error, response, body) {
+//          if (!error) {
+//            console.log("response: " + body);
+//          }
+//      }
+//    );
     
     // print total
     var totalLength = feedItems.length,
