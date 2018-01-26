@@ -65,6 +65,33 @@ function getFeed(urlfeed, callback) {
 getFeed(feedURL, function (err, feedItems) {
   // only run if no errors
   if (!err) {
+    // let's find the channel ID
+    request.get(
+      'https://slack.com/api/channels.list',
+      { json: {
+        token: yourSlackToken,
+      }},
+      function (error, response, body) {
+          if (!error) {
+            console.log("response: " + body);
+          }
+      }
+    );
+    // let's get the latest posts from slack to prevent duplication
+    // channels.history
+    request.get(
+      'https://slack.com/api/channels.history',
+      { json: {
+        token: yourSlackToken,
+        channel: '',
+      }},
+      function (error, response, body) {
+          if (!error) {
+            console.log("response: " + body);
+          }
+      }
+    );
+    
     // print total
     var totalLength = feedItems.length,
         postCount = 0;
@@ -77,13 +104,13 @@ getFeed(feedURL, function (err, feedItems) {
         var feedCats = feedItems[i].categories;
         // and only print those that match
         if (feedCats.indexOf(category) > -1) {
-          postToSlack( feedItems[i] );
+          //postToSlack( feedItems[i] );
           postCount++;
         }
       } else {
         // If no category set in config.js
         // Then print all items
-        postToSlack( feedItems[i] );
+        //postToSlack( feedItems[i] );
         postCount++;
       }
       // if a post limit is set
