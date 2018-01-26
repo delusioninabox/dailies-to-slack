@@ -10,7 +10,22 @@ This is a sample configuation file. To setup:
 ****/
 
 // RSS feed to read from
-let feedURL = '';
-// Slack channel to post to
-let channel = '';
-// API keys
+var feedURL     = 'HTTP://THEURL.COM/HERE/RSS';
+
+// Slack #channel to post to
+//var channel     = 'dailies';
+
+// Category from feed to post
+// If this feed doesn't use categories
+// or if you want to post from the whole feed
+// leave this string blank ( category = ''; )
+var category    = '';
+
+// limit the number of new posts to post
+var postLimit   = 5;
+
+// Webhook URL
+var webhookURL  = 'https://hooks.slack.com/services/####/####/####';
+
+// Your Slack Token
+var yourSlackToken = '######';
