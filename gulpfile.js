@@ -39,6 +39,3 @@ gulp.task('dailies', function() {
   // output completion message
   gutil.log( gutil.colors.green.bold('Ready. Running file now.') );
 });
-
-// set it as the default
-gulp.task('default', ['dailies']);
