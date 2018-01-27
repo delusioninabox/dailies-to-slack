@@ -15,9 +15,9 @@ if (webhookURL.length === 0 || feedURL.length === 0 || yourSlackToken.length ===
 }
 
 // load npm feedparser
-var request    = require("request"),
-    FeedParser = require("feedparser"),
-    slackAPI   = 'https://slack.com/api/';
+var request     = require("request"),
+    FeedParser  = require("feedparser"),
+    slackAPI    = 'https://slack.com/api/';
 
 // function to get feed and callback data
 function getFeed(urlfeed, callback) {
@@ -66,68 +66,109 @@ function getFeed(urlfeed, callback) {
 getFeed(feedURL, function (err, feedItems) {
   // only run if no errors
   if (!err) {
+    var pass = 0;
     // let's find the channel ID
-    //https://slack.com/api/channels.list
+    // channels.list
     request.get(
       slackAPI + 'channels.list?exclude_archived=true&exclude_members=true&token=' + yourSlackToken,
       function (error, response, body) {
           if (!error) {
-            var parseResponse = JSON.parse(body);
-            var channelList   = parseResponse.channels;
+            var channelConf   = false,
+                parseResponse = JSON.parse(body),
+                channelList   = parseResponse.channels,
+                channelID     = '';
               // find match in 'name' and return 'id'
               for (var x = 0; x < channelList.length; x++) {
-                console.log( channelList[x]['name']);
+                //console.log( channelList[x]['name']);
+                if (channelList[x]['name'].indexOf( channel ) > -1 || channelList[x]['id'].indexOf( channel ) > -1 ) {
+                  //postToSlack( feedItems[i] );
+                  channelConf = true;
+                  channelID   = channelList[x]['id'];
+                }
               }
+            if( channelConf == true ) {
+              console.log("Channel has been confirmed as valid.");
+              channel = channelID;
+              pass++;
+            } else {
+              console.log("Channel was not found.");
+            }
           }
-      }
-    );
-    // let's get the latest posts from the slack channel to prevent duplication
-    // channels.history
-//    request.get(
-//      'https://slack.com/api/channels.history',
-//      { json: {
-//        token: yourSlackToken,
-//        channel: '',
-//      }},
-//      function (error, response, body) {
-//          if (!error) {
-//            console.log("response: " + body);
-//          }
-//      }
-//    );
+          // let's get the latest posts from the slack channel to prevent duplication
+          // channels.history
+          request.get(
+            slackAPI + 'channels.history?token=' + youroAuthToken + '&channel=' + channel + '&count=10',
+            function (error, response, body) {
+                console.log('Checking history of ' + channel);
+                if (!error) {
+                  var parseResponse = JSON.parse(body),
+                      messages      = parseResponse.messages;
+                }
+                if( messages.length > 0 ) {
+                  pass++;
+                  console.log("Channel history retrieved.");
+                } else {
+                  console.log("No messages found in this channel.");
+                }
+              
+                if( pass == 2 ) {
+                  console.log("Preparing to post...");
+                  okToPostToSlack( messages );
+                } else {
+                  console.log("Posting aborted because of errors found.");
+                }
+            }
+          );
+        } // end check history request
+    ); // end check channels request
     
-    // print total
-    var totalLength = feedItems.length,
-        postCount = 0;
-    console.log(totalLength + " items were found in the feed.");
-    // loop through each item in the feed
-    for (var i = 0; i < feedItems.length; i++) {
-      // Is a category set in config.js?
-      if (category !== '') {
-        // if so, get categories
-        var feedCats = feedItems[i].categories;
-        // and only print those that match
-        if (feedCats.indexOf(category) > -1) {
-          //postToSlack( feedItems[i] );
-          postCount++;
-        }
-      } else {
-        // If no category set in config.js
-        // Then print all items
-        //postToSlack( feedItems[i] );
-        postCount++;
-      }
-      // if a post limit is set
-      if (postLimit > 0) {
-        // check if the number of posts created has reached the postLimit
-        if (postCount == postLimit) {
-          // if so, break the loop
-          i = totalLength;
-          console.log("Post limit reached, breaking queue.");
-        }
-      }
+    function okToPostToSlack( messages ) {
+      // print total
+      var totalLength = feedItems.length,
+          postCount = 0;
+      console.log(totalLength + " items were found in the feed.");
+      // loop through each item in the feed
+      for (var i = 0; i < feedItems.length; i++) {
+        
+        // we'll identify posts by the attachment titles, which should be unique
+        var titleId = 'Dailies to Slack | ' + feedItems[i]['pubDate'];
+        // only pursue posting if not found in message history
+        if ( checkExists( messages, titleId ) === false ) {
+        
+          // Is a category set in config.js?
+          if (category !== '') {
+            // if so, get categories
+            var feedCats = feedItems[i].categories;
+            // and only print those that match
+            if (feedCats.indexOf(category) > -1) {
+              //postToSlack( feedItems[i] );
+              postCount++;
+            }
 
-    }
+          } else {
+            // If no category set in config.js
+            // Then print all items
+            //postToSlack( feedItems[i] );
+            postCount++;
+          }
+          
+        } else {
+          console.log("Post " + feedItems[i]['title'] + " already posted.");
+        } // end not in message history
+        
+        // if a post limit is set
+        if (postLimit > 0) {
+          // check if the number of posts created has reached the postLimit
+          if (postCount == postLimit) {
+            // if so, break the loop
+            i = totalLength;
+            console.log("Posts queued.");
+          }
+        }
+
+      } // end for loop
+    } // end okToPostToSlack function
+    
   } // end if no errrors
 });
 
@@ -173,4 +214,22 @@ function postToSlack(feedItem) {
   );
 }
 
-//curl -X POST -H 'Content-type: application/json' --data '{"text":"Hello, World!"}' https://hooks.slack.com/services/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
+
+function checkExists(localMessages, titleToFind) {
+  var checkThis = [];
+    for (var i = 0; i < localMessages.length; ++i) {
+      var attachments = localMessages[i]['attachments'];
+      if( attachments ) {
+        var attachmentTitle = attachments['0']['footer'];
+        checkThis.push( attachmentTitle );
+        console.log( 'checking message ' + i );
+      }
+    }
+    if ( checkThis.indexOf(titleToFind) > -1 ) {
+        console.log('match found');
+        return true;
+    } else {
+        console.log('no match');
+        return false;
+    }
+}
