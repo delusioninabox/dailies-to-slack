@@ -141,17 +141,16 @@ getFeed(feedURL, function (err, feedItems) {
             var feedCats = feedItems[i].categories;
             // and only print those that match
             if (feedCats.indexOf(category) > -1) {
-              //postToSlack( feedItems[i] );
+              postToSlack( feedItems[i] );
               postCount++;
             }
 
           } else {
             // If no category set in config.js
             // Then print all items
-            //postToSlack( feedItems[i] );
+            postToSlack( feedItems[i] );
             postCount++;
           }
-          
         } else {
           console.log("Post " + feedItems[i]['title'] + " already posted.");
         } // end not in message history
@@ -197,7 +196,7 @@ function postToSlack(feedItem) {
       { json: { text: message, attachments: [ 
                 {
                     author_name : '',
-                    color       : '#008080',
+                    color       : '#ff2885',
                     title       : title,
                     title_link  : link,
                     image_url   : image,
@@ -216,20 +215,14 @@ function postToSlack(feedItem) {
 
 
 function checkExists(localMessages, titleToFind) {
-  var checkThis = [];
     for (var i = 0; i < localMessages.length; ++i) {
       var attachments = localMessages[i]['attachments'];
       if( attachments ) {
         var attachmentTitle = attachments['0']['footer'];
-        checkThis.push( attachmentTitle );
-        console.log( 'checking message ' + i );
+        if ( attachmentTitle.toString().toLowerCase() === titleToFind.toString().toLowerCase() ) {
+            return true;
+        }
       }
     }
-    if ( checkThis.indexOf(titleToFind) > -1 ) {
-        console.log('match found');
-        return true;
-    } else {
-        console.log('no match');
-        return false;
-    }
+  return false;
 }
