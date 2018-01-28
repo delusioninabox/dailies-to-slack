@@ -21,6 +21,12 @@ var channel     = '';
 // leave this string blank ( category = ''; )
 var category    = '';
 
+// limit the number of items in the RSS to look for posting
+// for example, leaving this empty ('') or undefined
+// will post ANY items that have never been posted before
+// but setting as `1` would only look to post the most recent item
+var rssLimit    = '';
+
 // limit the number of new posts to post
 var postLimit   = 1;
 
