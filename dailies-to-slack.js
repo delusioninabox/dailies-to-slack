@@ -231,7 +231,7 @@ function postToSlack(feedItem) {
 // function to check message history for item
 // localMessages is array of channel message history
 // titleToFind is a string to search for as unique identifier
-// we are used the attachment footer as that unique identifier
+// we are using the attachment footer as that unique identifier
 function checkExists(localMessages, titleToFind) {
     for (var i = 0; i < localMessages.length; ++i) {
       var attachments = localMessages[i]['attachments'];
