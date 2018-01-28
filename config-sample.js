@@ -34,7 +34,9 @@ var postLimit   = 1;
 var webhookURL  = '';
 
 // Your Slack Token
+// This is a bot token
 var yourSlackToken = 'xoxb-####';
 
 // Your oAuth Token
+// This is your user token
 var youroAuthToken = 'xoxp-####';

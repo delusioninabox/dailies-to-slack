@@ -28,14 +28,21 @@ gulp.task('dailies', function() {
   // minify and add to folder
   gutil.log('Concatinating files...');
   gulp.src( jsSources )
-  .pipe( uglify().on('error', gutil.log) )
-  .pipe( concat('script.js') )
-  .pipe( gulp.dest( outputDir ) )
-  .pipe( connect.reload() );
+    .pipe( uglify().on('error', gutil.log) )
+    .pipe( concat('script.js') )
+    .pipe( gulp.dest( outputDir ) )
+    .pipe( connect.reload() )
+    .on( 'end', function() {
+      run('node dist/script.js')
+        .exec()
+        .on('error', gutil.log)
+        .on('finish', function() {
+          run('rm dist/*').exec();
+        });
+    });
   gutil.log('Files successfully merged and minified.');
   // run the new file
-  gutil.log('Loading file...');
-  run('node dist/script.js').exec().on('error', gutil.log);
+  gutil.log('Loading file...')
   // output completion message
   gutil.log( gutil.colors.green.bold('Ready. Running file now.') );
 });
