@@ -122,13 +122,22 @@ getFeed(feedURL, function (err, feedItems) {
         } // end check history request
     ); // end check channels request
     
+    // function to post valid items to Slack
+    // messages is array of channel history
+    // messages is used to check and prevent duplication
     function okToPostToSlack( messages ) {
       // print total
       var totalLength = feedItems.length,
           postCount = 0;
       console.log(totalLength + " items were found in the feed.");
+      // If the limit of rss items to check is less than the length
+      // we'll set the length to the rss item limit
+      if( rssLimit > 0 && rssLimit < totalLength ) {
+        console.log("Only checking latest " + rssLimit + " items.");
+        totalLength = rssLimit;
+      }
       // loop through each item in the feed
-      for (var i = 0; i < feedItems.length; i++) {
+      for (var i = 0; i < totalLength; i++) {
         
         // we'll identify posts by the attachment titles, which should be unique
         var titleId = 'Dailies to Slack | ' + feedItems[i]['pubDate'];
@@ -171,7 +180,10 @@ getFeed(feedURL, function (err, feedItems) {
   } // end if no errrors
 });
 
+// function to post the feed items to Slack
+// feedItem is object of rss item data
 function postToSlack(feedItem) {
+  // get all the feed values
   // feedparser docs: https://www.npmjs.com/package/feedparser
   var title   = feedItem.title,       // item title
       desc    = feedItem.description, // item description
@@ -186,11 +198,14 @@ function postToSlack(feedItem) {
     var rex = /<img[^>]+src="?([^"\s]+)"?\s*\/>/g;
     var imageUrl = rex.exec( desc );
     image = imageUrl[1];
-    console.log('No image, checked description.');
+    console.log('No image, searching description.');
   } else {
+    // image found, so we grab that URL from the meta
     image = image['url'];
   }
   
+  // post to slack channel in appropiate format
+  // uses generate webhook URL from Slack
   request.post(
       webhookURL,
       { json: { text: message, attachments: [ 
@@ -210,19 +225,25 @@ function postToSlack(feedItem) {
             console.log("Posted " + title);
           }
       }
-  );
-}
+  ); // end post
+} // end function postToSlack
 
-
+// function to check message history for item
+// localMessages is array of channel message history
+// titleToFind is a string to search for as unique identifier
+// we are used the attachment footer as that unique identifier
 function checkExists(localMessages, titleToFind) {
     for (var i = 0; i < localMessages.length; ++i) {
       var attachments = localMessages[i]['attachments'];
+      // only check items that have attachments
       if( attachments ) {
         var attachmentTitle = attachments['0']['footer'];
         if ( attachmentTitle.toString().toLowerCase() === titleToFind.toString().toLowerCase() ) {
             return true;
+            // return true if title found
         }
       }
     }
   return false;
-}
+  // return false if title not found
+} // end function checkExists
