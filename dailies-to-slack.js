@@ -97,7 +97,7 @@ getFeed(feedURL, function (err, feedItems) {
           // let's get the latest posts from the slack channel to prevent duplication
           // channels.history
           request.get(
-            slackAPI + 'channels.history?token=' + youroAuthToken + '&channel=' + channel + '&count=10',
+            slackAPI + 'channels.history?token=' + youroAuthToken + '&channel=' + channel + '&count=30',
             function (error, response, body) {
                 console.log('Checking history of ' + channel);
                 if (!error) {
@@ -110,7 +110,7 @@ getFeed(feedURL, function (err, feedItems) {
                 } else {
                   console.log("No messages found in this channel.");
                 }
-              
+
                 if( pass == 2 ) {
                   console.log("Preparing to post...");
                   okToPostToSlack( messages );
@@ -121,7 +121,7 @@ getFeed(feedURL, function (err, feedItems) {
           );
         } // end check history request
     ); // end check channels request
-    
+
     // function to post valid items to Slack
     // messages is array of channel history
     // messages is used to check and prevent duplication
@@ -137,13 +137,14 @@ getFeed(feedURL, function (err, feedItems) {
         totalLength = rssLimit;
       }
       // loop through each item in the feed
-      for (var i = 0; i < totalLength; i++) {
-        
+      //for (var i = 0; i < totalLength; i++) {
+      for (var i = totalLength; i >= 0; i--) {
+
         // we'll identify posts by the attachment titles, which should be unique
         var titleId = 'Dailies to Slack | ' + feedItems[i]['pubDate'];
         // only pursue posting if not found in message history
         if ( checkExists( messages, titleId ) === false ) {
-        
+
           // Is a category set in config.js?
           if (category !== '') {
             // if so, get categories
@@ -163,7 +164,7 @@ getFeed(feedURL, function (err, feedItems) {
         } else {
           console.log("Post " + feedItems[i]['title'] + " already posted.");
         } // end not in message history
-        
+
         // if a post limit is set
         if (postLimit > 0) {
           // check if the number of posts created has reached the postLimit
@@ -176,7 +177,7 @@ getFeed(feedURL, function (err, feedItems) {
 
       } // end for loop
     } // end okToPostToSlack function
-    
+
   } // end if no errrors
 });
 
@@ -203,12 +204,12 @@ function postToSlack(feedItem) {
     // image found, so we grab that URL from the meta
     image = image['url'];
   }
-  
+
   // post to slack channel in appropiate format
   // uses generate webhook URL from Slack
   request.post(
       webhookURL,
-      { json: { text: message, attachments: [ 
+      { json: { text: message, attachments: [
                 {
                     author_name : '',
                     color       : '#ff2885',
