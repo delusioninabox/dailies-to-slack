@@ -170,7 +170,7 @@ getFeed(feedURL, function (err, feedItems) {
           // check if the number of posts created has reached the postLimit
           if (postCount == postLimit) {
             // if so, break the loop
-            i = totalLength;
+            i = 0;
             console.log("Posts queued.");
           }
         }
