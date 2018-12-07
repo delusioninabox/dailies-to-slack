@@ -1,14 +1,14 @@
 {
   "devDependencies": {
-    "gulp": "latest",
-    "gulp-util": "latest",
-    "gulp-uglify": "latest",
-    "gulp-concat": "latest",
-    "gulp-connect": "latest",
-    "gulp-run": "latest",
-    "gulp-dest": "latest",
-    "jquery": "latest",
     "feedparser": "latest",
+    "gulp": "^4.0.0",
+    "gulp-concat": "latest",
+    "gulp-connect": "^5.7.0",
+    "gulp-dest": "latest",
+    "gulp-run": "latest",
+    "gulp-uglify": "latest",
+    "gulp-util": "latest",
+    "jquery": "latest",
     "request": "latest"
   }
 }
