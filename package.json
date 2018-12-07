@@ -1,14 +1,14 @@
 {
-"devDependencies": {
-  "gulp": "latest",
-  "gulp-util": "latest",
-  "gulp-uglify": "latest",
-  "gulp-concat": "latest",
-  "gulp-connect": "latest",
-  "gulp-run": "latest",
-  "gulp-dest": "latest",
-  "jquery": "latest",
-  "feedparser": "latest",
-  "request":  "latest"
+  "devDependencies": {
+    "gulp": "latest",
+    "gulp-util": "latest",
+    "gulp-uglify": "latest",
+    "gulp-concat": "latest",
+    "gulp-connect": "latest",
+    "gulp-run": "latest",
+    "gulp-dest": "latest",
+    "jquery": "latest",
+    "feedparser": "latest",
+    "request": "latest"
   }
 }

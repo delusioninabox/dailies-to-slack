@@ -137,8 +137,8 @@ getFeed(feedURL, function (err, feedItems) {
         totalLength = rssLimit;
       }
       // loop through each item in the feed
-      //for (var i = 0; i < totalLength; i++) {
-      for (var i = totalLength; i >= 0; i--) {
+      for (var i = 0; i < totalLength; i++) {
+      // for (var i = totalLength; i >= 0; i--) {
 
         // we'll identify posts by the attachment titles, which should be unique
         var titleId = 'Dailies to Slack | ' + feedItems[i]['pubDate'];
@@ -239,9 +239,11 @@ function checkExists(localMessages, titleToFind) {
       // only check items that have attachments
       if( attachments ) {
         var attachmentTitle = attachments['0']['footer'];
-        if ( attachmentTitle.toString().toLowerCase() === titleToFind.toString().toLowerCase() ) {
-            return true;
-            // return true if title found
+        if(attachmentTitle) {
+          if ( attachmentTitle.toString().toLowerCase() === titleToFind.toString().toLowerCase() ) {
+              return true;
+              // return true if title found
+          }
         }
       }
     }
