@@ -16,7 +16,7 @@ var gulp    = require('gulp'),
     run     = require('gulp-run');
 
 // create the task
-gulp.task('dailies', function() {
+gulp.task('dailies', function(done) {
   
   // setup js sources and folder to run
   var jsSources = ['config.js', 'dailies-to-slack.js'],
@@ -45,4 +45,5 @@ gulp.task('dailies', function() {
   gutil.log('Loading file...')
   // output completion message
   gutil.log( gutil.colors.green.bold('Ready. Running file now.') );
+  done();
 });
